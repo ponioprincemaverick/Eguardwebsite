@@ -1,203 +1,592 @@
 <!DOCTYPE html>
-<html lang="en" class="__variable_bf57bf" style="scroll-behavior: smooth;">
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>E-Guard — Smart Electrical & Equipment Monitoring System</title>
-    <meta name="description" content="Affordable real-time monitoring device tracking voltage, current, temperature, and equipment status with instant alerts for university labs, engineering students, and electronics hobbyists.">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
-    <style>
-      body {
-        background: linear-gradient(180deg, #050b14 0%, #0a192f 50%, #0d2137 100%) !important;
-        background-attachment: fixed;
-        color: #f1f5f9;
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07152B">
+  <title>E-Guard | Electrical Monitoring for Engineering Labs</title>
+  <meta name="description" content="E-Guard is an affordable real-time monitor that tracks voltage, current, temperature, and equipment status, with instant alerts for university labs, engineering students, and electronics hobbyists.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07152B;
+      --surface: #0C1F3D;
+      --surface-2: #112A50;
+      --ink: #EAF1FB;
+      --ink-2: #A9B8CE;
+      --ink-3: #8193AC;
+      --line: #1F3659;
+      --blue: #4C8DFF;
+      --blue-soft: rgba(76, 141, 255, 0.14);
+      --amber: #F2B01E;
+      --amber-hover: #FFC43D;
+      --on-amber: #0A1628;
+      --ok: #34C77B;
+      --alert: #FF5E52;
+
+      --screen: #050E1C;
+      --screen-2: #0A1930;
+      --screen-line: #1A2E4C;
+      --screen-text: #F2F5F8;
+      --screen-dim: #8D9BAB;
+      --screen-ok: #43D98A;
+      --screen-alert: #FF5E52;
+
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 17px;
+      line-height: 1.6;
+      background: var(--bg);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; border-radius: 6px; }
+
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+    .wide { font-stretch: 125%; font-weight: 800; letter-spacing: -0.02em; line-height: 1.04; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      font: inherit; font-weight: 700; font-size: 15px;
+      padding: 13px 22px; border-radius: 999px; border: 1.5px solid transparent;
+      text-decoration: none; cursor: pointer;
+      transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+    }
+    .btn-primary { background: var(--amber); color: var(--on-amber); }
+    .btn-primary:hover { background: var(--amber-hover); }
+    .btn-outline { border-color: var(--ink); color: var(--ink); background: transparent; }
+    .btn-outline:hover { background: var(--ink); color: var(--bg); }
+    .btn-dark { background: var(--blue); color: #fff; }
+    .btn-dark:hover { background: #6AA1FF; }
+
+    /* Header */
+    .site-header {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(7, 21, 43, 0.82);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+    }
+    .site-header .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; gap: 16px; }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; font-stretch: 125%; font-weight: 800; font-size: 20px; letter-spacing: -0.01em; }
+    .logo-mark { width: 32px; height: 32px; border-radius: 9px; background: var(--surface-2); border: 1px solid #2A4777; display: grid; place-items: center; flex-shrink: 0; }
+    .main-nav { display: flex; gap: 30px; }
+    .main-nav a { text-decoration: none; font-weight: 500; font-size: 15px; color: var(--ink-2); }
+    .main-nav a:hover { color: var(--ink); }
+    .header-actions { display: flex; align-items: center; gap: 10px; }
+    .header-actions .btn { padding: 10px 18px; font-size: 14px; }
+    .menu-btn {
+      display: none; width: 42px; height: 42px; border-radius: 10px;
+      border: 1px solid var(--line); background: var(--surface); cursor: pointer;
+      align-items: center; justify-content: center; color: var(--ink);
+    }
+
+    /* Hero */
+    .hero { padding: 72px 0 96px; background: radial-gradient(ellipse 70% 60% at 85% 30%, rgba(76, 141, 255, 0.20), transparent 70%), radial-gradient(ellipse 50% 50% at 0% 100%, rgba(76, 141, 255, 0.08), transparent 70%); }
+    .hero .wrap { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: center; }
+    .hero h1 { font-size: clamp(38px, 5.4vw, 66px); }
+    .hero .lede { font-size: 19px; color: var(--ink-2); max-width: 32em; margin: 24px 0 34px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .hero-note { margin-top: 32px; font-size: 14px; color: var(--ink-3); display: flex; align-items: center; gap: 10px; }
+    .hero-note::before { content: ""; width: 28px; height: 2px; background: var(--amber); flex-shrink: 0; }
+
+    /* Hero photo */
+    .hero-photo {
+      border-radius: 24px; overflow: hidden; aspect-ratio: 5 / 4;
+      border: 1px solid #2B4878; background: var(--surface-2);
+      box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.7), 0 0 60px -20px rgba(76, 141, 255, 0.35);
+    }
+    .hero-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 60% 50%; }
+
+    /* Sections */
+    section { scroll-margin-top: 80px; }
+    .section { padding: 96px 0; }
+    .section-head { max-width: 640px; margin-bottom: 48px; }
+    .section-head h2 { font-size: clamp(30px, 3.6vw, 44px); }
+    .section-head p { margin-top: 16px; color: var(--ink-2); font-size: 18px; }
+    .band { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+
+    /* What it watches */
+    .watch { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 64px; align-items: start; }
+    .watch .section-head { position: sticky; top: 110px; margin-bottom: 0; }
+    .watch-list { list-style: none; border-top: 1px solid var(--line); }
+    .watch-list li { display: grid; grid-template-columns: 52px 1fr; gap: 20px; padding: 28px 0; border-bottom: 1px solid var(--line); }
+    .watch-icon { width: 52px; height: 52px; border-radius: 14px; background: var(--blue-soft); display: grid; place-items: center; color: var(--blue); }
+    .watch-list h3 { font-size: 20px; font-weight: 700; }
+    .watch-list p { color: var(--ink-2); margin-top: 4px; max-width: 34em; }
+    .watch-list .example { display: inline-block; margin-top: 10px; font-size: 14px; font-weight: 600; color: var(--amber); background: rgba(242, 176, 30, 0.12); border-radius: 6px; padding: 3px 10px; }
+
+    /* How it works */
+    .steps { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; counter-reset: step; position: relative; }
+    .steps::before { content: ""; position: absolute; top: 22px; left: 22px; right: 22px; height: 2px; background: var(--line); }
+    .steps li { position: relative; counter-increment: step; }
+    .steps li::before {
+      content: counter(step);
+      display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%;
+      background: var(--bg); border: 2px solid var(--blue); color: var(--blue); font-weight: 800; font-stretch: 125%;
+      position: relative; margin-bottom: 20px;
+    }
+    .steps li:last-child::before { background: var(--amber); border-color: var(--amber); color: var(--on-amber); }
+    .steps h3 { font-size: 19px; font-weight: 700; margin-bottom: 6px; }
+    .steps p { color: var(--ink-2); font-size: 16px; }
+
+    /* Who it's for */
+    .who-list { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .who-list li { padding-top: 22px; border-top: 2px solid var(--blue); }
+    .who-list h3 { font-size: 19px; font-weight: 700; }
+    .who-list p { color: var(--ink-2); margin-top: 6px; }
+
+    /* Pricing */
+    .price-list { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; }
+    .price-row { display: grid; grid-template-columns: 1.3fr 0.8fr auto; gap: 32px; align-items: center; padding: 30px 32px; border-top: 1px solid var(--line); }
+    .price-row:first-child { border-top: 0; }
+    .price-row.featured { background: linear-gradient(120deg, #143566 0%, #0F2748 100%); color: #fff; box-shadow: inset 3px 0 0 var(--amber); }
+    .price-row.featured .desc { color: #B8C3D1; }
+    .price-row .kind { font-size: 13px; font-weight: 600; color: var(--ink-3); }
+    .price-row.featured .kind { color: var(--amber); }
+    .price-row h3 { font-size: 22px; font-weight: 700; margin-top: 2px; }
+    .price-row .desc { color: var(--ink-2); margin-top: 6px; font-size: 16px; max-width: 34em; }
+    .price { font-stretch: 115%; font-weight: 800; font-size: 26px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .price small { display: block; font-stretch: 100%; font-size: 13px; font-weight: 500; color: var(--ink-3); }
+    .price-row.featured .price small { color: #B8C3D1; }
+    .price-row.featured .btn-outline { border-color: #fff; color: #fff; }
+    .price-row.featured .btn-outline:hover { background: #fff; color: var(--bg); }
+
+    /* Contact */
+    .contact { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 64px; align-items: start; }
+    .contact-details { margin-top: 36px; display: grid; gap: 22px; }
+    .contact-details dt { font-size: 14px; color: var(--ink-3); }
+    .contact-details dd { font-weight: 700; font-size: 18px; }
+    .form-card { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 36px; }
+    .form-card h3 { font-size: 22px; font-weight: 700; margin-bottom: 24px; }
+    .field { margin-bottom: 18px; }
+    .field label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+    .field .optional { font-weight: 400; color: var(--ink-3); }
+    .field input, .field select, .field textarea {
+      width: 100%; font: inherit; font-size: 16px; color: var(--ink);
+      background: var(--bg); border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 14px;
+      transition: border-color .15s, background-color .15s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--blue); background: var(--surface-2); }
+    .field select option { background: var(--surface); color: var(--ink); }
+    .field ::placeholder { color: var(--ink-3); }
+    .field textarea { resize: vertical; min-height: 110px; }
+    .field .error { display: none; color: var(--alert); font-size: 14px; margin-top: 6px; }
+    .field.invalid input { border-color: var(--alert); }
+    .field.invalid .error { display: block; }
+    .form-card .btn { width: 100%; padding: 15px; margin-top: 6px; }
+    .form-success { display: none; text-align: left; }
+    .form-success .check { width: 52px; height: 52px; border-radius: 50%; background: rgba(52, 199, 123, 0.14); color: var(--ok); display: grid; place-items: center; margin-bottom: 18px; }
+    .form-success h3 { margin-bottom: 8px; }
+    .form-success p { color: var(--ink-2); margin-bottom: 22px; }
+    .form-card.sent form { display: none; }
+    .form-card.sent .form-success { display: block; }
+    .form-status { font-size: 14px; color: var(--alert); margin-top: 12px; min-height: 1em; }
+
+    /* Footer */
+    .site-footer { border-top: 1px solid var(--line); padding: 32px 0; font-size: 14px; color: var(--ink-3); }
+    .site-footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+    /* Responsive */
+    @media (max-width: 980px) {
+      .hero .wrap, .watch, .contact { grid-template-columns: 1fr; gap: 48px; }
+      .watch .section-head { position: static; }
+      .steps { grid-template-columns: 1fr 1fr; row-gap: 40px; }
+      .steps::before { display: none; }
+      .price-row { grid-template-columns: 1fr auto; }
+      .price-row .btn { grid-column: 1 / -1; justify-self: start; }
+    }
+    @media (max-width: 860px) {
+      .menu-btn { display: inline-flex; }
+      .main-nav {
+        display: none; position: absolute; top: 68px; left: 0; right: 0;
+        flex-direction: column; gap: 0; background: var(--surface);
+        border-bottom: 1px solid var(--line); padding: 8px 24px 16px;
       }
-    </style>
+      .main-nav.open { display: flex; }
+      .main-nav a { padding: 14px 0; font-size: 17px; border-bottom: 1px solid var(--line); }
+      .main-nav a:last-child { border-bottom: 0; }
+    }
+    @media (max-width: 600px) {
+      body { font-size: 16px; }
+      .wrap { padding: 0 16px; }
+      .hero { padding: 44px 0 64px; }
+      .hero .lede { font-size: 17px; }
+      .hero-actions .btn { flex: 1 1 100%; }
+      .header-actions .btn { display: none; }
+      .section { padding: 72px 0; }
+      .steps { grid-template-columns: 1fr; }
+      .who-list { grid-template-columns: 1fr; gap: 24px; }
+      .price-row { grid-template-columns: 1fr; gap: 16px; padding: 26px 22px; }
+      .form-card { padding: 26px 20px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+    }
+  </style>
 </head>
-<body class="__className_bf57bf">
-    
-    <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-background/95 backdrop-blur-md border-b border-border">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 md:h-20 flex items-center justify-between">
-            <a class="flex items-center gap-2 group" href="#">
-                <span class="font-black text-lg tracking-tight text-foreground">E-<span class="text-primary neon-text-primary">GUARD</span></span>
-            </a>
-            <nav class="hidden md:flex items-center gap-8">
-                <a class="text-sm font-semibold text-muted-foreground hover:text-primary transition-colors duration-200 tracking-wide" href="#services">Products & Services</a>
-                <a class="text-sm font-semibold text-muted-foreground hover:text-primary transition-colors duration-200 tracking-wide" href="#how-it-works">How It Works</a>
-                <a class="text-sm font-semibold text-muted-foreground hover:text-primary transition-colors duration-200 tracking-wide" href="#portfolio">Demos</a>
-                <a class="text-sm font-semibold text-muted-foreground hover:text-primary transition-colors duration-200 tracking-wide" href="#contact">Contact</a>
-            </nav>
-            <div class="flex items-center gap-3">
-                <a class="hidden sm:inline-flex items-center px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-bold tracking-wide neon-glow-primary hover:opacity-90 transition-all duration-200" href="#contact">Order Device</a>
-            </div>
+<body>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="logo" href="#top" aria-label="E-Guard home">
+        <span class="logo-mark" aria-hidden="true">
+          <svg width="16" height="18" viewBox="0 0 16 18" fill="#F2B01E"><path d="M9.5 0 0 10.2h6.2L5 18l11-11.4H9.4L9.5 0Z"/></svg>
+        </span>
+        E-Guard
+      </a>
+      <nav class="main-nav" id="main-nav" aria-label="Main">
+        <a href="#monitoring">What it monitors</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="header-actions">
+        <a class="btn btn-primary" href="#contact">Order a device</a>
+        <button class="menu-btn" type="button" aria-controls="main-nav" aria-expanded="false" aria-label="Open menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="wrap">
+        <div>
+          <h1 class="wide">Know the moment your lab equipment is at risk.</h1>
+          <p class="lede">E-Guard is an affordable monitor that tracks voltage, current, temperature, and equipment status in real time, and alerts you as soon as a reading leaves its safe range.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#contact" data-topic="demo">Request a demo</a>
+            <a class="btn btn-outline" href="#pricing">See pricing</a>
+          </div>
+          <p class="hero-note">An ECE technopreneurship project from Pangasinan, built for school labs and hobby benches.</p>
         </div>
-    </header>
 
-    <main class="relative overflow-x-hidden">
-        
-        <!-- HERO SECTION -->
-        <section class="relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-28 pb-16">
-            <div class="absolute inset-0 grid-cyber opacity-100"></div>
-            <div class="absolute inset-0 scanline-overlay"></div>
-            
-            <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-                    
-                    <!-- Left Column: Headline & Call To Actions -->
-                    <div class="lg:col-span-7 text-left">
-                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/5 mb-6">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            <span class="text-xs font-black uppercase tracking-[0.35em] text-primary">ECE Technopreneurship · Hardware Protection</span>
-                        </div>
-                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-foreground mb-6 leading-tight">
-                            Protect Your Lab Equipment.<br>
-                            <span class="text-primary neon-text-primary" style="text-shadow: 0 0 25px rgba(0,255,255,0.4);">Real-Time Electrical Monitoring.</span>
-                        </h1>
-                        <p class="text-base md:text-lg text-muted-foreground font-medium leading-relaxed mb-8 max-w-xl">
-                            An affordable, easy-to-use monitoring device tracking voltage, current, temperature, and equipment status with instant alerts for university engineering labs and electronics students.
-                        </p>
-                        
-                        <div class="flex flex-col sm:flex-row items-center gap-4">
-                            <a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-primary text-primary-foreground font-black text-sm tracking-wide neon-glow-primary hover:opacity-90 transition-all duration-200" href="#contact">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
-                                Request a Demo
-                            </a>
-                            <a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full border border-border text-foreground font-black text-sm tracking-wide hover:border-primary/50 hover:bg-primary/5 transition-all duration-200" href="#services">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                                Explore Pricing
-                            </a>
-                        </div>
-                    </div>
+        <figure class="hero-photo">
+          <img src="hero-device.png" alt="E-Guard unit with monitored outlets and a status display, on a lab bench while engineering students work">
+        </figure>
+      </div>
+    </section>
 
-                    <!-- Right Column: HUD Image Frame -->
-                    <div class="lg:col-span-5 relative mt-6 lg:mt-0">
-                        <!-- Neon Ambient Glow -->
-                        <div class="absolute -inset-1 rounded-2xl bg-gradient-to-r from-primary to-accent opacity-30 blur-2xl"></div>
-                        
-                        <!-- High Tech Window Frame -->
-                        <div class="relative rounded-2xl border border-primary/40 bg-background/90 backdrop-blur-md p-3 shadow-2xl overflow-hidden group">
-                            
-                            <!-- Header HUD Bar -->
-                            <div class="flex items-center justify-between px-3 py-2 border-b border-border/80 mb-2 text-xs font-mono">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                                    <span class="text-emerald-400 font-bold tracking-wider">E-GUARD DEVICE</span>
-                                </div>
-                                <span class="text-[10px] font-bold text-primary tracking-widest px-2 py-0.5 rounded border border-primary/30 bg-primary/10">SYS_ONLINE</span>
-                            </div>
-                            
-                            <!-- Main Image Showcase -->
-                            <div class="relative rounded-xl overflow-hidden aspect-[4/3] bg-muted/20">
-                                <img src="hero-device.jpg" alt="E-Guard Smart Device Setup" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80';">
-                                
-                                <!-- Floating Telemetry Overlay -->
-                                <div class="absolute bottom-3 left-3 right-3 bg-black/85 backdrop-blur-md border border-primary/30 rounded-xl p-3.5 flex items-center justify-between">
-                                    <div>
-                                        <p class="text-[10px] text-muted-foreground uppercase font-mono tracking-wider">Active Monitoring</p>
-                                        <p class="text-sm font-bold text-primary font-mono">110V AC · 2.1A</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="text-[10px] text-muted-foreground uppercase font-mono tracking-wider">Safety Status</p>
-                                        <p class="text-sm font-bold text-emerald-400 font-mono flex items-center gap-1">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> SAFE / GOOD
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
+    <!-- What it monitors -->
+    <section class="section band" id="monitoring">
+      <div class="wrap watch">
+        <div class="section-head">
+          <h2 class="wide">Four readings. One alert when it matters.</h2>
+          <p>Set the safe range for each piece of equipment once. E-Guard keeps watching, so a fault gets caught while it is still a warning and not a burnt board.</p>
+        </div>
+        <ul class="watch-list">
+          <li>
+            <span class="watch-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c2.5-6 5-6 7.5 0s5 6 7.5 0 3.5-4 5-2"/></svg>
+            </span>
+            <div>
+              <h3>Voltage</h3>
+              <p>Catches sags and surges on the supply line before they reach sensitive circuits and instruments.</p>
+              <span class="example">Example: alert below 200 V or above 240 V</span>
             </div>
-        </section>
-
-        <!-- SERVICES SECTION -->
-        <section id="services" class="py-16 md:py-24 relative scroll-mt-20">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-                <div class="text-center mb-12">
-                    <span class="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.4em] text-primary mb-4">
-                        <span class="h-px w-12 bg-primary opacity-60"></span>Products & Services<span class="h-px w-12 bg-primary opacity-60"></span>
-                    </span>
-                    <h2 class="text-4xl font-black text-foreground mb-4">Smart Monitoring. <span class="text-primary neon-text-primary">Complete Protection.</span></h2>
-                    <p class="max-w-xl mx-auto text-base text-muted-foreground">Tailored hardware solutions, on-site laboratory setup, and ongoing technical maintenance for schools and hobbyists.</p>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="p-6 rounded-2xl border border-border bg-background/50 hover:border-primary/50 transition-all">
-                        <div class="flex items-center justify-between mb-5">
-                            <span class="text-[10px] font-black uppercase tracking-[0.4em] px-3 py-1 rounded-full border border-primary/30 text-primary bg-primary/5">Core Hardware</span>
-                        </div>
-                        <h3 class="text-xl font-black text-foreground mb-3">E-Guard Monitoring Device</h3>
-                        <p class="text-sm text-muted-foreground leading-relaxed mb-5">Compact monitoring unit engineered to continuously read voltage, current, and temperature with automated threshold alert triggers.</p>
-                        <p class="text-2xl font-black text-primary">₱1,800 – ₱2,500</p>
-                    </div>
-                    
-                    <div class="p-6 rounded-2xl border border-border bg-background/50 hover:border-accent/50 transition-all">
-                        <div class="flex items-center justify-between mb-5">
-                            <span class="text-[10px] font-black uppercase tracking-[0.4em] px-3 py-1 rounded-full border border-accent/30 text-accent bg-accent/5">On-Site Service</span>
-                        </div>
-                        <h3 class="text-xl font-black text-foreground mb-3">Laboratory Installation</h3>
-                        <p class="text-sm text-muted-foreground leading-relaxed mb-5">Full bench installation and calibration across school laboratories, test stations, and institutional workbenches.</p>
-                        <p class="text-2xl font-black text-accent">Starts at ₱1,000</p>
-                    </div>
-                    
-                    <div class="p-6 rounded-2xl border border-border bg-background/50 hover:border-primary/50 transition-all">
-                        <div class="flex items-center justify-between mb-5">
-                            <span class="text-[10px] font-black uppercase tracking-[0.4em] px-3 py-1 rounded-full border border-primary/30 text-primary bg-primary/5">After-Sales</span>
-                        </div>
-                        <h3 class="text-xl font-black text-foreground mb-3">Maintenance & Calibration</h3>
-                        <p class="text-sm text-muted-foreground leading-relaxed mb-5">Routine hardware diagnostics, sensor re-calibration, firmware updates, and component repair for existing setups.</p>
-                        <p class="text-2xl font-black text-primary">₱500 – ₱1,200</p>
-                    </div>
-                </div>
+          </li>
+          <li>
+            <span class="watch-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>
+            </span>
+            <div>
+              <h3>Current</h3>
+              <p>Flags overcurrent from short circuits, wrong wiring, or equipment drawing more than it should.</p>
+              <span class="example">Example: alert above 5.0 A</span>
             </div>
-        </section>
-
-        <!-- CONTACT SECTION -->
-        <section id="contact" class="py-16 md:py-24 relative scroll-mt-20">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-                    <div>
-                        <h2 class="text-5xl font-bold text-foreground mb-4">Get Protected with <span class="text-primary neon-text-primary">E-Guard.</span></h2>
-                        <p class="text-lg text-muted-foreground leading-relaxed mb-10">Inquire about purchasing E-Guard devices, request an institutional product demonstration, or schedule installation services for your laboratory.</p>
-                        
-                        <div class="space-y-6">
-                            <div>
-                                <p class="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-1">Location</p>
-                                <p class="text-base font-bold text-foreground">Dagupan City / Mangaldan, Pangasinan, Philippines</p>
-                            </div>
-                            <div>
-                                <p class="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-1">Contact Person</p>
-                                <p class="text-base font-bold text-foreground">Ponio, Prince Maverick A.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-8 rounded-2xl border border-border bg-background/60">
-                        <h3 class="text-2xl font-bold text-foreground mb-6">Order & Demo Inquiry</h3>
-                        <form class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-2">Full Name</label>
-                                <input type="text" placeholder="Your Name" class="w-full px-4 py-3 rounded-xl bg-muted/40 border border-border text-foreground text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-2">Institution / Organization</label>
-                                <input type="text" placeholder="School or Company Name" class="w-full px-4 py-3 rounded-xl bg-muted/40 border border-border text-foreground text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-2">Inquiry Details</label>
-                                <textarea rows="3" placeholder="Describe your request..." class="w-full px-4 py-3 rounded-xl bg-muted/40 border border-border text-foreground text-sm"></textarea>
-                            </div>
-                            <button type="button" class="w-full py-4 rounded-full font-bold text-sm bg-primary text-primary-foreground hover:opacity-90">
-                                Submit Inquiry →
-                            </button>
-                        </form>
-                    </div>
-                </div>
+          </li>
+          <li>
+            <span class="watch-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.8V4a2 2 0 1 0-4 0v10.8a4 4 0 1 0 4 0Z"/></svg>
+            </span>
+            <div>
+              <h3>Temperature</h3>
+              <p>Tracks heat build-up in power supplies, motors, and soldering stations during long sessions.</p>
+              <span class="example">Example: alert above 60 °C</span>
             </div>
-        </section>
-    </main>
-    
+          </li>
+          <li>
+            <span class="watch-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+            </span>
+            <div>
+              <h3>Equipment status</h3>
+              <p>Shows at a glance whether the connected equipment is off, running normally, or in a fault state.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="section" id="how-it-works">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 class="wide">Set up in minutes.</h2>
+          <p>No programming needed. If you can wire a bench supply, you can install E-Guard.</p>
+        </div>
+        <ol class="steps">
+          <li>
+            <h3>Connect</h3>
+            <p>Run the equipment's power through E-Guard and place the temperature sensor near it.</p>
+          </li>
+          <li>
+            <h3>Set limits</h3>
+            <p>Choose the safe voltage, current, and temperature range for that equipment.</p>
+          </li>
+          <li>
+            <h3>Monitor</h3>
+            <p>E-Guard reads every value continuously and shows the live status on its display.</p>
+          </li>
+          <li>
+            <h3>Get alerted</h3>
+            <p>The moment a reading leaves its safe range, E-Guard alerts you so you can switch off in time.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Who it's for -->
+    <section class="section band" id="who">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 class="wide">Made for the people who use the bench.</h2>
+        </div>
+        <ul class="who-list">
+          <li>
+            <h3>University engineering labs</h3>
+            <p>Protect shared power supplies, trainers, and test stations that students use every day.</p>
+          </li>
+          <li>
+            <h3>Engineering students</h3>
+            <p>Keep thesis and capstone prototypes safe while you test, and learn from real readings.</p>
+          </li>
+          <li>
+            <h3>Electronics hobbyists</h3>
+            <p>Get lab-grade peace of mind on a home workbench, at a student-friendly price.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="section" id="pricing">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 class="wide">Simple pricing.</h2>
+          <p>Buy the device on its own, or let us install and maintain it for your laboratory.</p>
+        </div>
+        <div class="price-list">
+          <div class="price-row featured">
+            <div>
+              <div class="kind">Device</div>
+              <h3>E-Guard monitoring unit</h3>
+              <p class="desc">Compact unit that continuously reads voltage, current, and temperature, with automatic alerts when a limit is crossed.</p>
+            </div>
+            <div class="price">₱1,800 – ₱2,500<small>per unit</small></div>
+            <a class="btn btn-primary" href="#contact" data-topic="buy">Order a device</a>
+          </div>
+          <div class="price-row">
+            <div>
+              <div class="kind">Service</div>
+              <h3>Laboratory installation</h3>
+              <p class="desc">On-site installation and calibration across school laboratories, test stations, and workbenches.</p>
+            </div>
+            <div class="price">from ₱1,000<small>per setup</small></div>
+            <a class="btn btn-outline" href="#contact" data-topic="install">Book installation</a>
+          </div>
+          <div class="price-row">
+            <div>
+              <div class="kind">After-sales</div>
+              <h3>Maintenance and calibration</h3>
+              <p class="desc">Diagnostics, sensor re-calibration, firmware updates, and component repair for existing units.</p>
+            </div>
+            <div class="price">₱500 – ₱1,200<small>per visit</small></div>
+            <a class="btn btn-outline" href="#contact" data-topic="maintenance">Book maintenance</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="section band" id="contact">
+      <div class="wrap contact">
+        <div>
+          <div class="section-head" style="margin-bottom:0">
+            <h2 class="wide">Bring E-Guard to your lab.</h2>
+            <p>Order devices, request a demonstration for your institution, or schedule installation. We usually reply within a day.</p>
+          </div>
+          <dl class="contact-details">
+            <div>
+              <dt>Location</dt>
+              <dd>Dagupan City and Mangaldan, Pangasinan</dd>
+            </div>
+            <div>
+              <dt>Contact person</dt>
+              <dd>Prince Maverick A. Ponio</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="form-card" id="form-card">
+          <form id="inquiry-form" novalidate>
+            <h3>Send an inquiry</h3>
+            <div class="field" id="f-name">
+              <label for="name">Full name</label>
+              <input id="name" name="name" type="text" autocomplete="name" required>
+              <p class="error">Enter your name so we know who to reply to.</p>
+            </div>
+            <div class="field">
+              <label for="org">School or organization <span class="optional">(optional)</span></label>
+              <input id="org" name="organization" type="text" autocomplete="organization">
+            </div>
+            <div class="field" id="f-contact">
+              <label for="contact-info">Email or mobile number</label>
+              <input id="contact-info" name="contact" type="text" autocomplete="email" required>
+              <p class="error">Add an email or mobile number so we can reply.</p>
+            </div>
+            <div class="field">
+              <label for="topic">What do you need?</label>
+              <select id="topic" name="topic">
+                <option value="buy">Buy a device</option>
+                <option value="demo">Request a demo</option>
+                <option value="install">Laboratory installation</option>
+                <option value="maintenance">Maintenance and calibration</option>
+                <option value="other">Something else</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="details">Details <span class="optional">(optional)</span></label>
+              <textarea id="details" name="details" rows="4" placeholder="How many units, which lab, preferred schedule…"></textarea>
+            </div>
+            <button class="btn btn-primary" type="submit" id="submit-btn">Send inquiry</button>
+            <p class="form-status" id="form-status" role="alert"></p>
+          </form>
+
+          <div class="form-success" tabindex="-1" id="form-success">
+            <div class="check" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h3>Inquiry sent</h3>
+            <p id="success-text">Thanks. We'll get back to you soon.</p>
+            <button class="btn btn-outline" type="button" id="new-inquiry">Send another inquiry</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 E-Guard. Smart electrical and equipment monitoring.</span>
+      <span>Dagupan City, Pangasinan, Philippines</span>
+    </div>
+  </footer>
+
+  <script>
+    /* ---------- Mobile menu ---------- */
+    const menuBtn = document.querySelector('.menu-btn');
+    const nav = document.getElementById('main-nav');
+    menuBtn.addEventListener('click', () => {
+      const open = nav.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded', String(open));
+      menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    });
+    nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      nav.classList.remove('open');
+      menuBtn.setAttribute('aria-expanded', 'false');
+    }));
+
+    /* ---------- Pricing buttons pre-select the inquiry type ---------- */
+    const topic = document.getElementById('topic');
+    document.querySelectorAll('[data-topic]').forEach(link => {
+      link.addEventListener('click', () => { topic.value = link.dataset.topic; });
+    });
+
+    /* ---------- Inquiry form ----------
+       To receive inquiries, paste a form endpoint here
+       (for example a free Formspree or Getform URL). */
+    const FORM_ENDPOINT = '';
+
+    const form = document.getElementById('inquiry-form');
+    const card = document.getElementById('form-card');
+    const formStatus = document.getElementById('form-status');
+    const submitBtn = document.getElementById('submit-btn');
+
+    function check(fieldId, inputId) {
+      const field = document.getElementById(fieldId);
+      const ok = document.getElementById(inputId).value.trim() !== '';
+      field.classList.toggle('invalid', !ok);
+      return ok;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      formStatus.textContent = '';
+      const okName = check('f-name', 'name');
+      const okContact = check('f-contact', 'contact-info');
+      if (!okName || !okContact) {
+        (okName ? document.getElementById('contact-info') : document.getElementById('name')).focus();
+        return;
+      }
+
+      const data = Object.fromEntries(new FormData(form));
+
+      if (FORM_ENDPOINT) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending…';
+        try {
+          const res = await fetch(FORM_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          if (!res.ok) throw new Error();
+        } catch {
+          formStatus.textContent = 'Your inquiry could not be sent. Check your connection and try again.';
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send inquiry';
+          return;
+        }
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send inquiry';
+      } else {
+        console.warn('E-Guard form: FORM_ENDPOINT is empty, so this inquiry was not delivered anywhere.');
+      }
+
+      const first = data.name.trim().split(' ')[0];
+      document.getElementById('success-text').textContent =
+        `Thanks, ${first}. We'll reply to ${data.contact.trim()} soon.`;
+      card.classList.add('sent');
+      document.getElementById('form-success').focus();
+    });
+
+    ['name', 'contact-info'].forEach(id => {
+      document.getElementById(id).addEventListener('input', e => {
+        e.target.closest('.field').classList.remove('invalid');
+      });
+    });
+
+    document.getElementById('new-inquiry').addEventListener('click', () => {
+      form.reset();
+      card.classList.remove('sent');
+      document.getElementById('name').focus();
+    });
+  </script>
 </body>
 </html>
