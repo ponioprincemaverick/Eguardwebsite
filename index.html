@@ -9,7 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
+  <!-- Loaded synchronously (no defer) so EmailJS is always ready before scripts run -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -27,15 +28,6 @@
       --on-amber: #0A1628;
       --ok: #34C77B;
       --alert: #FF5E52;
-
-      --screen: #050E1C;
-      --screen-2: #0A1930;
-      --screen-line: #1A2E4C;
-      --screen-text: #F2F5F8;
-      --screen-dim: #8D9BAB;
-      --screen-ok: #43D98A;
-      --screen-alert: #FF5E52;
-
       --max: 1180px;
     }
 
@@ -325,7 +317,7 @@
       position: fixed; bottom: 24px; right: 24px; z-index: 120;
       background: var(--surface-2); color: var(--ink); border: 1.5px solid var(--amber);
       padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 700;
-      box-shadow: 0 14px 34px rgba(0,0,0,0.6); max-width: 420px;
+      box-shadow: 0 14px 34px rgba(0,0,0,0.6); max-width: 440px;
     }
 
     /* Footer */
@@ -685,6 +677,7 @@
                 <p style="color:var(--ink-2);font-size:15px;margin-top:4px;">Logged in as <strong>Prince Maverick A. Ponio (ponioprince@gmail.com)</strong>. Approving a request automatically emails the customer and unlocks online payment.</p>
               </div>
               <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button type="button" class="btn btn-sm btn-dark" id="test-email-btn">🧪 Send Test Email</button>
                 <button type="button" class="btn btn-sm btn-outline" id="clear-demo-btn">🧹 Clear Demo Data</button>
                 <button type="button" class="btn btn-sm btn-danger" id="lock-owner-btn">🔒 Lock Owner Mode</button>
               </div>
@@ -839,7 +832,7 @@
       clearTimeout(showToast._timer);
       showToast._timer = setTimeout(() => {
         toast.hidden = true;
-      }, 6000);
+      }, 7000);
     }
 
     function buildCleanPortalUrl(order) {
@@ -856,6 +849,46 @@
       return `${baseUrl}?${params.toString()}#order-portal`;
     }
 
+    /* Direct EmailJS REST API + SDK Sender with all template variable aliases */
+    async function sendSingleEmailJS(recipientEmail, recipientName, senderName, replyToEmail, subject, order, messageBody, portalUrl) {
+      const templateParams = {
+        to_email: recipientEmail,
+        email: recipientEmail,
+        user_email: recipientEmail,
+        recipient: recipientEmail,
+        reply_to: replyToEmail,
+        to_name: recipientName,
+        name: senderName,
+        from_name: senderName,
+        subject: subject,
+        order_id: order.id,
+        service_name: order.serviceName,
+        amount: `₱${order.price.toFixed(2)}`,
+        status: order.status.replaceAll('_', ' '),
+        message_body: messageBody,
+        message: messageBody,
+        action_link: portalUrl
+      };
+
+      // Primary: Direct HTTPS POST to EmailJS REST API (never fails due to script race conditions)
+      const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          service_id: AUTOMATION_CONFIG.EMAILJS_SERVICE_ID,
+          template_id: AUTOMATION_CONFIG.EMAILJS_TEMPLATE_ID,
+          user_id: AUTOMATION_CONFIG.EMAILJS_PUBLIC_KEY,
+          template_params: templateParams
+        })
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`EmailJS (${response.status}): ${errText}`);
+      }
+      return true;
+    }
+
     async function dispatchAutomatedEmails({
       eventTitle,
       order,
@@ -864,14 +897,54 @@
       sendToCustomer = false,
       sendToOwner = false
     }) {
-      initEmailJS();
       const ownerEmail = AUTOMATION_CONFIG.OWNER_EMAIL;
       const timestamp = new Date().toLocaleString();
       const logs = getEmailLogs();
       const cleanPortalUrl = buildCleanPortalUrl(order);
+      let dispatchErrors = [];
+
+      if (sendToCustomer) {
+        try {
+          await sendSingleEmailJS(
+            order.customerEmail,
+            order.customerName,
+            'E-Guard Electrical Monitoring',
+            ownerEmail,
+            eventTitle,
+            order,
+            customerMessage,
+            cleanPortalUrl
+          );
+        } catch (err) {
+          console.error('Customer EmailJS Error:', err);
+          dispatchErrors.push(`Customer Email: ${err.message}`);
+        }
+      }
+
+      if (sendToOwner) {
+        try {
+          await sendSingleEmailJS(
+            ownerEmail,
+            'Prince Maverick A. Ponio (E-Guard Owner)',
+            order.customerName,
+            order.customerEmail,
+            `[E-GUARD OWNER] ${eventTitle}`,
+            order,
+            ownerMessage,
+            cleanPortalUrl
+          );
+        } catch (err) {
+          console.error('Owner EmailJS Error:', err);
+          dispatchErrors.push(`Owner Email: ${err.message}`);
+        }
+      }
+
+      const statusNote = dispatchErrors.length
+        ? `⚠️ ERROR: ${dispatchErrors.join(' | ')}`
+        : '✅ Delivered via EmailJS';
 
       logs.unshift({
-        time: timestamp,
+        time: `${timestamp} (${statusNote})`,
         subject: eventTitle,
         toCustomer: sendToCustomer ? `${order.customerName} <${order.customerEmail}>` : 'No Customer Email',
         toOwner: sendToOwner ? `Owner <${ownerEmail}>` : 'No Owner Email',
@@ -881,55 +954,11 @@
       localStorage.setItem(EMAIL_LOG_KEY, JSON.stringify(logs.slice(0, 20)));
       renderEmailLogs();
 
-      if (window.emailjs && sendToCustomer) {
-        try {
-          await window.emailjs.send(
-            AUTOMATION_CONFIG.EMAILJS_SERVICE_ID,
-            AUTOMATION_CONFIG.EMAILJS_TEMPLATE_ID,
-            {
-              to_email: order.customerEmail,
-              to_name: order.customerName,
-              name: 'E-Guard Electrical Monitoring',
-              email: ownerEmail,
-              subject: eventTitle,
-              order_id: order.id,
-              service_name: order.serviceName,
-              amount: `₱${order.price.toFixed(2)}`,
-              status: order.status.replaceAll('_', ' '),
-              message_body: customerMessage,
-              action_link: cleanPortalUrl
-            }
-          );
-        } catch (err) {
-          console.warn('EmailJS Customer dispatch warning:', err);
-        }
+      if (dispatchErrors.length) {
+        showToast(`⚠️ EmailJS Error: ${dispatchErrors[0]}. Check EmailJS template "To Email" is {{to_email}}!`);
+      } else {
+        showToast(`📧 Gmail sent to ${sendToCustomer ? order.customerEmail : ''}${sendToCustomer && sendToOwner ? ' & ' : ''}${sendToOwner ? ownerEmail : ''}!`);
       }
-
-      if (window.emailjs && sendToOwner) {
-        try {
-          await window.emailjs.send(
-            AUTOMATION_CONFIG.EMAILJS_SERVICE_ID,
-            AUTOMATION_CONFIG.EMAILJS_TEMPLATE_ID,
-            {
-              to_email: ownerEmail,
-              to_name: 'Prince Maverick A. Ponio (E-Guard Owner)',
-              name: order.customerName,
-              email: order.customerEmail,
-              subject: `[E-GUARD OWNER] ${eventTitle}`,
-              order_id: order.id,
-              service_name: order.serviceName,
-              amount: `₱${order.price.toFixed(2)}`,
-              status: order.status.replaceAll('_', ' '),
-              message_body: ownerMessage,
-              action_link: cleanPortalUrl
-            }
-          );
-        } catch (err) {
-          console.warn('EmailJS Owner dispatch warning:', err);
-        }
-      }
-
-      showToast(`📧 Automated notification sent: ${eventTitle}`);
     }
 
     function renderEmailLogs() {
@@ -996,6 +1025,27 @@
       ownerLoginBtn.hidden = false;
       switchPortalTab('customer');
       showToast('🔒 Owner Admin Mode locked and hidden.');
+    });
+
+    document.getElementById('test-email-btn').addEventListener('click', async () => {
+      showToast('⏳ Sending test email to ponioprince@gmail.com...');
+      const sampleOrder = {
+        id: 'EG-TEST',
+        customerName: 'Prince Test Customer',
+        customerEmail: AUTOMATION_CONFIG.OWNER_EMAIL,
+        organization: 'University of Luzon Lab',
+        serviceName: 'E-Guard Monitoring Unit',
+        price: 1800,
+        status: 'TEST_CONNECTION'
+      };
+      await dispatchAutomatedEmails({
+        eventTitle: 'E-Guard EmailJS Connection Test',
+        order: sampleOrder,
+        customerMessage: 'Your E-Guard EmailJS integration is working properly!',
+        ownerMessage: 'Owner copy test successful.',
+        sendToCustomer: true,
+        sendToOwner: false
+      });
     });
 
     document.getElementById('clear-demo-btn').addEventListener('click', () => {
