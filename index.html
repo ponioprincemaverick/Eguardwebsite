@@ -1439,10 +1439,12 @@
 
       if (method.includes('GCash')) {
         box.innerHTML = `<strong>GCash Express Checkout:</strong> Send <strong>₱${price}</strong> to <strong>0917-882-4190 (Prince Maverick A. Ponio / E-Guard)</strong> and enter your Reference No. below.`;
-      } else if (method.includes('BDO')) {
-        box.innerHTML = `<strong>BDO / BPI Online Bank Transfer:</strong> Transfer <strong>₱${price}</strong> to <strong>BDO Account #0062-4419-8820 (Prince Maverick A. Ponio / E-Guard)</strong> and enter your InstaPay/Confirmation No. below.`;
+      } else if (method.includes('Debit')) {
+        box.innerHTML = `<strong>Online Banking (Debit Transfer):</strong> Transfer <strong>₱${price}</strong> via InstaPay / PESONet from your Debit account to <strong>BDO Account #0062-4419-8820 (Prince Maverick A. Ponio)</strong> and enter your Bank Reference Number below.`;
+      } else if (method.includes('Credit')) {
+        box.innerHTML = `<strong>Online Banking (Credit Card):</strong> Process your <strong>₱${price}</strong> transfer using your Credit Card online banking portal to <strong>BDO Account #0062-4419-8820 (Prince Maverick A. Ponio)</strong> and enter your Approval/Reference Number below.`;
       } else {
-        box.innerHTML = `<strong>Maya Online Checkout:</strong> Send <strong>₱${price}</strong> to <strong>0917-882-4190 (@eguardph / Prince Maverick A. Ponio)</strong> and enter your Reference ID below.`;
+        box.innerHTML = `<strong>Online Banking Transfer:</strong> Transfer <strong>₱${price}</strong> to <strong>BDO Account #0062-4419-8820 (Prince Maverick A. Ponio)</strong> and enter your Reference Number below.`;
       }
     };
 
