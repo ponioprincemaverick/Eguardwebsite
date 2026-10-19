@@ -626,21 +626,34 @@
               </div>
             </div>
 
-            <div class="field">
-              <label for="topic">Select E-Guard device or service</label>
-              <select id="topic" name="topic">
-                <option value="E-Guard Monitoring Unit|1800" data-key="buy">Order E-Guard Monitoring Unit — ₱1,800</option>
-                <option value="Laboratory Installation Service|1000" data-key="install">Book Laboratory Installation — ₱1,000</option>
-                <option value="Maintenance & Sensor Calibration|800" data-key="maintenance">Book Maintenance &amp; Calibration — ₱800</option>
-                <option value="Institution Demo & Lab Assessment|500" data-key="demo">Request a Lab Demo &amp; Assessment — ₱500</option>
-              </select>
-            </div>
+             <div class="field">
+              <label style="font-weight: 700; margin-bottom: 8px; display: block;">Select Items & Services to Add</label>
+              <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                <select id="item-selector" style="flex: 1; min-width: 200px;">
+                 <option value="E-Guard Monitoring Unit|1800" data-key="buy">Order E-Guard Monitoring Unit — ₱1,800</option>
+                  <option value="Laboratory Installation Service|1000" data-key="install">Book Laboratory Installation — ₱1,000</option>
+                  <option value="Maintenance & Sensor Calibration|800" data-key="maintenance">Book Maintenance &amp; Calibration — ₱800</option>
+                  <option value="Institution Demo & Lab Assessment|500" data-key="demo">Request a Lab Demo &amp; Assessment — ₱500</option>
+                </select>
+                  <button type="button" class="btn btn-sm btn-dark" id="add-to-cart-btn" style="border-radius: 10px; padding: 0 18px;">+ Add to Cart</button>
+             </div>
 
-            <div class="field" id="f-details">
-              <label for="details">Order / Lab Setup Details</label>
-              <textarea id="details" name="details" rows="3" required placeholder="How many units, which lab or bench equipment, preferred schedule…"></textarea>
-              <p class="error">Please provide brief details about your order or service request.</p>
-            </div>
+            <!-- LIVE SHOPPING CART BOX -->
+              <div id="cart-container" style="background: var(--bg); border: 1.5px solid var(--line); border-radius: 12px; padding: 16px; margin-top: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 12px;">
+                <strong style="font-size: 15px; color: var(--amber);">🛒 Selected Cart Items</strong>
+                <span id="cart-item-count" style="font-size: 12px; color: var(--ink-3);">0 items</span>
+              </div>
+    
+              <div id="cart-items-list" style="display: flex; flex-direction: column; gap: 10px;">
+                <p id="empty-cart-msg" style="font-size: 14px; color: var(--ink-3); text-align: center; padding: 10px 0;">Your cart is empty. Pick an option above and click "+ Add to Cart".</p>
+              </div>
+
+              <div style="border-top: 1.5px solid var(--line); margin-top: 12px; padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 700; font-size: 16px;">Total Checkout Amount:</span>
+                <strong id="cart-total-price" style="font-size: 20px; color: var(--amber);">₱0.00</strong>
+             </div>
+        </div>
 
             <button class="btn btn-primary btn-submit" type="submit" id="submit-btn">Send Confirmation Request</button>
             <p class="form-footnote">Free cancellation before owner approval. Cancelling within 2 days after approval incurs an automatic 10% holding fee.</p>
