@@ -379,21 +379,14 @@ section { scroll-margin-top: 80px; }
 .email-log-entry { background: var(--bg); border-left: 3px solid var(--blue); padding: 12px 16px; border-radius: 8px; font-size: 13px; }
 .email-log-entry small { color: var(--ink-3); display: block; margin-bottom: 4px; }
 
-/* Modals (Assurance, Invoice & Owner Auth) */
+/* Modals (Invoice & Owner Auth) */
 .modal-backdrop {
   position: fixed; inset: 0; background: rgba(4, 10, 22, 0.85); z-index: 100;
   display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;
 }
 .auth-sheet {
   background: var(--surface); color: var(--ink); border: 1.5px solid var(--amber);
-  width: min(480px, 100%); border-radius: 20px; padding: 30px; box-shadow: 0 24px 60px rgba(0,0,0,0.7);
-}
-.assurance-badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(52, 199, 123, 0.16); color: var(--ok);
-  border: 1px solid rgba(52, 199, 123, 0.45);
-  padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 800;
-  margin-bottom: 14px;
+  width: min(420px, 100%); border-radius: 20px; padding: 30px; box-shadow: 0 24px 60px rgba(0,0,0,0.7);
 }
 .invoice-sheet {
   background: #ffffff; color: #0A1628; width: min(620px, 100%); border-radius: 18px;
@@ -745,7 +738,7 @@ section { scroll-margin-top: 80px; }
       <div>
         <div class="section-head" style="margin-bottom:0">
           <h2 class="wide">Checkout &amp; bring E-Guard to your lab.</h2>
-          <p>Review your cart total and submit your checkout confirmation request. As soon as you order, an automated assurance email is immediately sent to your Gmail confirming that your order is under review.</p>
+          <p>Review your cart total and submit your checkout confirmation request. Both you and E-Guard will receive an itemized confirmation email with your Total Bill, approval status, and cancellation controls.</p>
         </div>
         <dl class="contact-details">
           <div>
@@ -763,14 +756,14 @@ section { scroll-margin-top: 80px; }
         </dl>
         <div class="policy-note-box">
           <strong>Automated Online Payment &amp; 2-Day Policy</strong>
-          Once your checkout order is reviewed and approved by the owner, you will receive an approval email and online payment (GCash, Maya, or Online Banking Debit/Credit) will unlock automatically for your <strong>Total Bill</strong>. Cancelling within 2 days after approval deducts a <strong>10% service/holding fee</strong> automatically.
+          Once your checkout order is approved by the owner, you will receive an approval email and online payment (GCash, Maya, or Online Banking Debit/Credit) will unlock automatically for your <strong>Total Bill</strong>. Cancelling within 2 days after approval deducts a <strong>10% service/holding fee</strong> automatically.
         </div>
       </div>
 
       <div class="form-card" id="form-card">
         <form id="inquiry-form" novalidate>
           <h3>Order Checkout &amp; Confirmation Request</h3>
-          <p class="form-sub">Immediately sends an "Order Under Review" assurance email to your Gmail and notifies E-Guard.</p>
+          <p class="form-sub">Submits your cart items &amp; Total Bill to E-Guard and sends an itemized copy to your Gmail.</p>
 
           <!-- LIVE CHECKOUT CART & TOTAL BILL SUMMARY FOR CUSTOMER & OWNER -->
           <div class="checkout-bill-box">
@@ -883,7 +876,7 @@ section { scroll-margin-top: 80px; }
         <div class="email-log-card">
           <div class="email-log-header">
             <strong>📧 Automated Gmail Dispatch Log (Owner Verification View)</strong>
-            <span style="color:var(--ink-3);">Tracks Customer Emails (1. Under Review Assurance, 2. Approved, 3. Invoice) &amp; Owner Copies to ponioprince@gmail.com</span>
+            <span style="color:var(--ink-3);">Tracks Customer Emails (1. Request, 2. Approved, 3. Invoice) &amp; Owner Copies to ponioprince@gmail.com</span>
           </div>
           <div id="automated-email-log" class="email-log-list">
             <p style="color:var(--ink-3);">Waiting for booking activity...</p>
@@ -893,18 +886,6 @@ section { scroll-margin-top: 80px; }
     </div>
   </section>
 </main>
-
-<!-- IMMEDIATE CUSTOMER ORDER ASSURANCE MODAL -->
-<div id="order-assurance-modal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="assurance-modal-title">
-  <div class="auth-sheet">
-    <span class="assurance-badge">✔ Order Received &amp; Assurance Email Sent</span>
-    <h3 id="assurance-modal-title" style="font-size:22px;">Your Order is Being Reviewed!</h3>
-    <p id="assurance-modal-body" style="color:var(--ink-2);font-size:15px;margin-top:10px;line-height:1.6;"></p>
-    <div class="invoice-actions" style="margin-top:22px;">
-      <button type="button" class="btn btn-sm btn-primary" id="close-assurance-btn">View Live Order Status</button>
-    </div>
-  </div>
-</div>
 
 <!-- OWNER PASSWORD MODAL -->
 <div id="owner-auth-modal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="owner-auth-title">
@@ -1041,6 +1022,7 @@ function getCart() {
     const saved = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || 'null');
     if (Array.isArray(saved) && saved.length > 0) return saved;
   } catch {}
+  // Default starter item so checkout is never empty on initial load
   return [{ id: 'buy', name: 'E-Guard Monitoring Unit', unitPrice: 1800, qty: 1 }];
 }
 
@@ -1127,6 +1109,7 @@ function renderCartAndCheckoutBill() {
   try {
     rawCart = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || 'null');
   } catch {}
+  // Initialize default 1x E-Guard unit on very first visit
   if (rawCart === null) {
     rawCart = [{ id: 'buy', name: 'E-Guard Monitoring Unit', unitPrice: 1800, qty: 1 }];
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(rawCart));
@@ -1175,7 +1158,7 @@ function renderCartAndCheckoutBill() {
   const submitBtnTotal = document.getElementById('submit-btn-total');
 
   checkoutTotal.textContent = formatPeso(totalBill);
-  if (submitBtnTotal) submitBtnTotal.textContent = formatPeso(totalBill);
+  submitBtnTotal.textContent = formatPeso(totalBill);
 
   if (rawCart.length === 0) {
     checkoutBreakdown.innerHTML = `<p style="color:var(--alert);">Your cart is empty. Use the quick-add dropdown below or click Add to Cart above.</p>`;
@@ -1222,23 +1205,6 @@ function showToast(message) {
   }, 6000);
 }
 
-function showOrderAssuranceModal(order) {
-  const modal = document.getElementById('order-assurance-modal');
-  const body = document.getElementById('assurance-modal-body');
-  if (!modal || !body) return;
-
-  body.innerHTML = `
-    Hi <strong>${order.customerName}</strong>, thank you for ordering from E-Guard!<br><br>
-    We have sent an immediate confirmation email to <strong>${order.customerEmail}</strong> to assure you that your order (Reference: <strong style="color:var(--amber);">${order.id}</strong> • Total Bill: <strong style="color:var(--amber);">${formatPeso(order.price)}</strong>) has been received and is currently <strong>being reviewed</strong> by our team.<br><br>
-    As soon as Prince Maverick A. Ponio approves your request, you will receive another email with your unlocked online payment link.
-  `;
-  modal.hidden = false;
-}
-
-document.getElementById('close-assurance-btn').addEventListener('click', () => {
-  document.getElementById('order-assurance-modal').hidden = true;
-});
-
 function formatOrderCartText(order) {
   if (Array.isArray(order.cartItems) && order.cartItems.length > 0) {
     return order.cartItems
@@ -1263,41 +1229,21 @@ function buildCleanPortalUrl(order) {
 }
 
 async function sendSingleEmailJS(recipientEmail, recipientName, senderName, replyToEmail, subject, order, messageBody, portalUrl) {
-  const readableStatus = order.status === 'PENDING_OWNER_APPROVAL'
-    ? 'UNDER REVIEW BY E-GUARD'
-    : order.status.replaceAll('_', ' ');
-
   const templateParams = {
     to_email: recipientEmail,
     email: recipientEmail,
-    user_email: recipientEmail,
-    customer_email: recipientEmail,
     to_name: recipientName,
-    customer_name: order.customerName,
     name: senderName,
-    from_name: 'E-Guard Electrical Monitoring',
     reply_to: replyToEmail,
     subject: subject,
     order_id: order.id,
     service_name: `${order.serviceName} (Total Bill: ${formatPeso(order.price)})`,
     amount: formatPeso(order.price),
-    status: readableStatus,
+    status: order.status.replaceAll('_', ' '),
     message_body: messageBody,
-    message: messageBody,
     action_link: portalUrl
   };
 
-  // Primary delivery via EmailJS v4 Browser SDK
-  if (window.emailjs && typeof window.emailjs.send === 'function') {
-    return await window.emailjs.send(
-      AUTOMATION_CONFIG.EMAILJS_SERVICE_ID,
-      AUTOMATION_CONFIG.EMAILJS_TEMPLATE_ID,
-      templateParams,
-      { publicKey: AUTOMATION_CONFIG.EMAILJS_PUBLIC_KEY }
-    );
-  }
-
-  // Fallback REST API call if SDK script was blocked
   const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1373,7 +1319,7 @@ async function dispatchAutomatedEmails({
     }
   }
 
-  showToast(`📧 Automated email sent to ${order.customerEmail}: ${eventTitle}`);
+  showToast(`📧 Automated notification sent: ${eventTitle}`);
 }
 
 function renderEmailLogs() {
@@ -1453,7 +1399,7 @@ document.getElementById('clear-demo-btn').addEventListener('click', () => {
   showToast('🧹 All test bookings cleared for presentation!');
 });
 
-/* ================= STAGE 1: CART CHECKOUT SUBMISSION (IMMEDIATE CUSTOMER ASSURANCE EMAIL + OWNER NOTIFICATION) ================= */
+/* ================= STAGE 1: CART CHECKOUT SUBMISSION (CUSTOMER EMAIL #1 + OWNER EMAIL #1) ================= */
 const form = document.getElementById('inquiry-form');
 const submitBtn = document.getElementById('submit-btn');
 
@@ -1489,7 +1435,7 @@ form.addEventListener('submit', async (e) => {
   if (!okName || !okEmail || !okMobile || !okDetails) return;
 
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Sending Order Assurance Email to Your Inbox…';
+  submitBtn.textContent = 'Submitting Cart Checkout & Sending Email…';
 
   const totalBill = getCartTotal(rawCart);
   const summaryTitle = rawCart.map(i => `${i.qty}× ${i.name}`).join(' + ');
@@ -1533,27 +1479,24 @@ form.addEventListener('submit', async (e) => {
   renderOwnerDashboard();
 
   document.getElementById('order-portal').scrollIntoView({ behavior: 'smooth' });
-  showOrderAssuranceModal(newOrder);
 
   const cartLinesText = formatOrderCartText(newOrder);
 
-  // Customer Email #1 (Immediate Assurance that Order is Being Reviewed) + Owner Email #1
+  // Customer Email #1 + Owner Email #1 (Includes Cart Items & Total Bill)
   await dispatchAutomatedEmails({
-    eventTitle: `We Received Your E-Guard Order [${newOrder.id}] — Currently Under Review`,
+    eventTitle: `E-Guard Cart Checkout Request — Total Bill ${formatPeso(newOrder.price)} [${newOrder.id}]`,
     order: newOrder,
     customerMessage:
-      `Hi ${newOrder.customerName},\n\n` +
-      `Thank you for ordering from E-Guard! This email is to assure you that we have received your order (Ref: ${newOrder.id}) and it is currently BEING REVIEWED by our team.\n\n` +
-      `YOUR ORDER SUMMARY:\n${cartLinesText}\n` +
+      `Your E-Guard cart checkout confirmation request has been sent and is currently WAITING FOR OWNER APPROVAL.\n\n` +
+      `CHECKED-OUT CART ITEMS:\n${cartLinesText}\n` +
       `----------------------------------------\n` +
       `TOTAL BILL TO AVAIL: ${formatPeso(newOrder.price)}\n` +
       `----------------------------------------\n` +
       `• School / Organization: ${newOrder.organization}\n` +
       `• Delivery / Setup Notes: ${newOrder.details}\n\n` +
-      `WHAT HAPPENS NEXT?\n` +
-      `Prince Maverick A. Ponio (E-Guard Owner) is reviewing your order details right now. As soon as your order is approved, we will send you a follow-up email with your unlocked online payment link (GCash, Maya, or Online Banking). You may also track your live order status or cancel for free while under review using the portal link below.`,
+      `Once Prince Maverick A. Ponio (Owner) approves your order, you will receive an approval email to pay your Total Bill online. You may cancel for free while awaiting approval using the portal link below.`,
     ownerMessage:
-      `NEW CUSTOMER CART CHECKOUT — ACTION REQUIRED (UNDER REVIEW)\n\n` +
+      `NEW CUSTOMER CART CHECKOUT — ACTION REQUIRED (APPROVE OR DECLINE)\n\n` +
       `• Customer: ${newOrder.customerName} (${newOrder.customerEmail} / ${newOrder.mobile})\n` +
       `• Organization: ${newOrder.organization}\n` +
       `• Delivery / Setup Notes: ${newOrder.details}\n\n` +
@@ -1600,7 +1543,7 @@ window.handleOwnerAction = async function(orderId, action) {
       eventTitle: `E-Guard Order Approved — Total Bill ${formatPeso(order.price)} Ready for Payment [${order.id}]`,
       order,
       customerMessage:
-        `Good news! Prince Maverick A. Ponio (E-Guard Owner) has finished reviewing and APPROVED your checkout order!\n\n` +
+        `Good news! Prince Maverick A. Ponio (E-Guard Owner) has APPROVED your checkout order!\n\n` +
         `APPROVED CART ITEMS:\n${cartLinesText}\n` +
         `----------------------------------------\n` +
         `TOTAL BILL TO PAY ONLINE: ${formatPeso(order.price)}\n` +
@@ -1624,7 +1567,7 @@ window.handleOwnerAction = async function(orderId, action) {
     await dispatchAutomatedEmails({
       eventTitle: `E-Guard Order Request Declined [${order.id}]`,
       order,
-      customerMessage: `We regret to inform you that after reviewing your E-Guard order request (${order.id}), it could not be accommodated at this time. No payment was charged.`,
+      customerMessage: `We regret to inform you that your E-Guard order request (${order.id}) could not be accommodated at this time. No payment was charged.`,
       ownerMessage: `You declined Order ${order.id}.`,
       sendToCustomer: true,
       sendToOwner: false
@@ -1703,7 +1646,7 @@ window.handleCustomerCancel = async function(orderId) {
   if (!order) return;
 
   if (order.status === 'PENDING_OWNER_APPROVAL') {
-    if (!confirm(`Cancel order request ${order.id}? Since the owner is still reviewing it and has not approved it yet, there is no cancellation fee.`)) return;
+    if (!confirm(`Cancel order request ${order.id}? Since the owner has not approved it yet, there is no cancellation fee.`)) return;
     order.status = 'CANCELLED_BY_CUSTOMER_FREE';
     order.cancelledAt = Date.now();
     saveOrders(orders);
@@ -1774,7 +1717,7 @@ function renderCustomerOrder(orderId) {
   activeOrderId = order.id;
   const tenPercent = (order.price * 0.10).toFixed(2);
 
-  let statusBadge = `<span class="status-pill status-pending">⏳ Order Under Review by Owner</span>`;
+  let statusBadge = `<span class="status-pill status-pending">⏳ Waiting for Owner Approval</span>`;
   if (order.status === 'ACCEPTED_AWAITING_PAYMENT') {
     statusBadge = `<span class="status-pill status-accepted">✓ Approved by Owner — Ready for Payment</span>`;
   } else if (order.status === 'PAID_CONFIRMED') {
@@ -1797,11 +1740,11 @@ function renderCustomerOrder(orderId) {
   if (order.status === 'PENDING_OWNER_APPROVAL') {
     dynamicStageHTML = `
       <div class="policy-banner">
-        <strong>1. Assurance Email Sent — Your Order is Currently Being Reviewed</strong>
-        We have sent an assurance email to <strong>${order.customerEmail}</strong> confirming that your cart order and Total Bill (${formatPeso(order.price)}) are now being reviewed by Prince Maverick A. Ponio. Once approved, you will receive an approval email and online payment will unlock here automatically. You may cancel for free below while under review.
+        <strong>1. Confirmation Request Sent — Waiting for Owner Approval</strong>
+        Your cart order and Total Bill (${formatPeso(order.price)}) have been emailed to you and E-Guard. Once the owner approves your order, you will receive an approval email and online payment will unlock here automatically. You may cancel for free below while awaiting approval.
       </div>
       <div class="action-btn-row">
-        <button type="button" class="btn btn-sm btn-danger" onclick="handleCustomerCancel('${order.id}')">✕ Cancel Order Request (Free while under review)</button>
+        <button type="button" class="btn btn-sm btn-danger" onclick="handleCustomerCancel('${order.id}')">✕ Cancel Order Request (Free before approval)</button>
       </div>
     `;
   }
@@ -2120,10 +2063,8 @@ function handleIncomingEmailLinks() {
 
 document.addEventListener('keydown', event => {
   if (event.key !== 'Escape') return;
-  const assuranceModal = document.getElementById('order-assurance-modal');
   const invModal = document.getElementById('invoice-modal');
-  if (assuranceModal && !assuranceModal.hidden) assuranceModal.hidden = true;
-  else if (invModal && !invModal.hidden) invModal.hidden = true;
+  if (invModal && !invModal.hidden) invModal.hidden = true;
   else if (ownerAuthModal && !ownerAuthModal.hidden) ownerAuthModal.hidden = true;
 });
 
@@ -2136,3 +2077,5 @@ handleIncomingEmailLinks();
 </script>
 </body>
 </html>
+
+
