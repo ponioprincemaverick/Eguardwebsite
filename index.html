@@ -1435,7 +1435,7 @@ form.addEventListener('submit', async (e) => {
   if (!okName || !okEmail || !okMobile || !okDetails) return;
 
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Submitting Cart Checkout & Sending Email…';
+  submitBtn.textContent = 'Wait For the Owner to Approve...';
 
   const totalBill = getCartTotal(rawCart);
   const summaryTitle = rawCart.map(i => `${i.qty}× ${i.name}`).join(' + ');
