@@ -625,7 +625,7 @@
                 <input id="org" name="organization" type="text" autocomplete="organization" placeholder="e.g. University of Luzon">
               </div>
             </div>
-
+            <!-- CART SELECTOR SECTION -->
              <div class="field">
               <label style="font-weight: 700; margin-bottom: 8px; display: block;">Select Items & Services to Add</label>
               <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
@@ -1039,7 +1039,100 @@
         e.target.closest('.field').classList.remove('invalid');
       });
     });
+/* ================= SHOPPING CART STATE ================= */
+let cart = [];
 
+function updateCartUI() {
+  const listEl = document.getElementById('cart-items-list');
+  const countEl = document.getElementById('cart-item-count');
+  const totalEl = document.getElementById('cart-total-price');
+
+  if (cart.length === 0) {
+    listEl.innerHTML = `<p id="empty-cart-msg" style="font-size: 14px; color: var(--ink-3); text-align: center; padding: 10px 0;">Your cart is empty. Pick an option above and click "+ Add to Cart".</p>`;
+    countEl.textContent = '0 items';
+    totalEl.textContent = '₱0.00';
+    return;
+  }
+
+  let total = 0;
+  let totalQty = 0;
+
+  listEl.innerHTML = cart.map((item, index) => {
+    const itemTotal = item.price * item.qty;
+    total += itemTotal;
+    totalQty += item.qty;
+
+    return `
+      <div style="display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); font-size: 14px; gap: 10px;">
+        <div style="flex: 1;">
+          <strong style="display: block; color: var(--ink);">${item.name}</strong>
+          <small style="color: var(--ink-3);">₱${item.price.toFixed(2)} each</small>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <button type="button" class="btn btn-sm btn-outline" style="padding: 2px 8px; min-width: 28px;" onclick="changeCartQty(${index}, -1)">-</button>
+          <span style="font-weight: 700; font-size: 14px; width: 20px; text-align: center;">${item.qty}</span>
+          <button type="button" class="btn btn-sm btn-outline" style="padding: 2px 8px; min-width: 28px;" onclick="changeCartQty(${index}, 1)">+</button>
+        </div>
+        <strong style="color: var(--amber); width: 80px; text-align: right;">₱${itemTotal.toFixed(2)}</strong>
+        <button type="button" style="background: none; border: none; color: var(--alert); cursor: pointer; font-size: 16px; margin-left: 4px;" onclick="removeFromCart(${index})">✕</button>
+      </div>
+    `;
+  }).join('');
+
+  countEl.textContent = `${totalQty} item(s)`;
+  totalEl.textContent = `₱${total.toFixed(2)}`;
+}
+
+document.getElementById('add-to-cart-btn').addEventListener('click', () => {
+  const select = document.getElementById('item-selector');
+  const [name, priceStr] = select.value.split('|');
+  const price = parseFloat(priceStr);
+
+  const existingIndex = cart.findIndex(item => item.name === name);
+  if (existingIndex > -1) {
+    cart[existingIndex].qty += 1;
+  } else {
+    cart.push({ name, price, qty: 1 });
+  }
+
+  updateCartUI();
+});
+
+window.changeCartQty = function(index, delta) {
+  if (!cart[index]) return;
+  cart[index].qty += delta;
+  if (cart[index].qty <= 0) {
+    cart.splice(index, 1);
+  }
+  updateCartUI();
+};
+
+window.removeFromCart = function(index) {
+  cart.splice(index, 1);
+  updateCartUI();
+};
+
+/* Pre-select item when pricing section buttons are clicked */
+document.querySelectorAll('[data-topic]').forEach(link => {
+  link.addEventListener('click', () => {
+    const key = link.dataset.topic;
+    const itemSelect = document.getElementById('item-selector');
+    const opt = Array.from(itemSelect.options).find(o => o.dataset.key === key);
+    if (opt) {
+      itemSelect.value = opt.value;
+      // Auto-add selected pricing package to cart
+      const [name, priceStr] = opt.value.split('|');
+      const price = parseFloat(priceStr);
+      const existingIndex = cart.findIndex(item => item.name === name);
+      if (existingIndex > -1) {
+        cart[existingIndex].qty += 1;
+      } else {
+        cart.push({ name, price, qty: 1 });
+      }
+      updateCartUI();
+    }
+  });
+});
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const okName = validateField('f-name', 'name');
